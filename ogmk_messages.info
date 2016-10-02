@@ -1,5 +1,5 @@
 name = Commerce Marketplace Messages
-description = A module that provides messages functionality for a commerce marketplace.
+description = A module that provides activity/notifications functionality for a commerce marketplace.
 core = 7.x
 package = Commerce Marketplace Features
 version = 7.x-0.1-dev
