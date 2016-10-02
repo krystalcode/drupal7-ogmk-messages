@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Commerce Marketplace Messages feature.
+ */
+
+include_once 'ogmk_messages.features.inc';
