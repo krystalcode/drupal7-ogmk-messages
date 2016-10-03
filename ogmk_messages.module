@@ -11,6 +11,16 @@ include_once 'ogmk_messages.features.inc';
  */
 
 /**
+ * Implements hook_entity_info_alter().
+ */
+function ogmk_messages_entity_info_alter(&$entity_info) {
+  $entity_info['message']['view modes']['ogmk_bootstrap_media'] = array(
+    'label' => t('OGMK Bootstrap Media'),
+    'custom settings' => FALSE,
+  );
+}
+
+/**
  * Implements hook_node_insert().
  */
 function ogmk_messages_node_insert($node) {
