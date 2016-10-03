@@ -5,3 +5,43 @@
  */
 
 include_once 'ogmk_messages.features.inc';
+
+/**
+ * Hooks.
+ */
+
+/**
+ * Implements hook_node_insert().
+ */
+function ogmk_messages_node_insert($node) {
+  if (!in_array($node->type, array('ogmk_post', 'ogmk_product', 'ogmk_review', 'ogmk_shop'))) {
+    return;
+  }
+
+  // Node publication message.
+  if ((int) $node->status === NODE_PUBLISHED) {
+    // Create a message assigned to the node author and referencing the node.
+    $message = message_create($node->type.'_published', array('uid' => $node->uid));
+    $wrapper = entity_metadata_wrapper('message', $message);
+    $wrapper->field_message_node_ref->set($node);
+    $wrapper->save();
+  }
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function ogmk_messages_node_update($node) {
+  if (!in_array($node->type, array('ogmk_post', 'ogmk_product', 'ogmk_review', 'ogmk_shop'))) {
+    return;
+  }
+
+  // Node publication message.
+  if ((int) $node->original->status === NODE_NOT_PUBLISHED && (int) $node->status === NODE_PUBLISHED) {
+    // Create a message assigned to the node author and referencing the node.
+    $message = message_create($node->type.'_published', array('uid' => $node->uid));
+    $wrapper = entity_metadata_wrapper('message', $message);
+    $wrapper->field_message_node_ref->set($node);
+    $wrapper->save();
+  }
+}
