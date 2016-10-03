@@ -25,6 +25,7 @@ features[message_type][] = ogmk_post_published
 features[message_type][] = ogmk_product_published
 features[message_type][] = ogmk_review_published
 features[message_type][] = ogmk_shop_published
+features[user_permission][] = create messages
 features[variable][] = field_bundle_settings_message__ogmk_comment_published
 features[variable][] = field_bundle_settings_message__ogmk_post_published
 features[variable][] = field_bundle_settings_message__ogmk_product_published
