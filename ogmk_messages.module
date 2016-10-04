@@ -53,6 +53,46 @@ function ogmk_messages_node_update($node) {
     $wrapper = entity_metadata_wrapper('message', $message);
     $wrapper->field_message_node_ref->set($node);
     $wrapper->save();
+
+    // Queue the message via 'message_subscribe' module's queue.
+    $notify_options = array();
+    $subscribe_options = array(
+      // Don't save the message because we have already done so.
+      'save message' => FALSE,
+    );
+
+    // Get the users that should be notified.
+    $options = array(
+      'field_name' => $node->type . '_notify',
+      'flag_name'  => 'ogmk_node_follow',
+    );
+    $uids = _ogmk_messages_get_subscribers('node', $node->type, $node->nid, $options);
+
+    // Nothing more to do if there's nobody to notify.
+    if (!$uids) {
+      return;
+    }
+
+    /**
+     * @Issue(
+     *   "Check if we need to remove the message's author from the users that
+     *   should be notified"
+     *   type="bug"
+     *   priority="normal"
+     * )
+     */
+
+    // Added the users with their notifier to the subscribe options.
+    $subscribe_options['uids'] = _ogmk_messages_get_subscribers_notifiers($uids);
+
+    // Send or queue the messages.
+    message_subscribe_send_message(
+      'node',
+      $node,
+      $message,
+      $notify_options,
+      $subscribe_options
+    );
   }
 }
 
@@ -98,4 +138,91 @@ function ogmk_messages_comment_update($comment) {
     $wrapper->field_message_node_ref->set($node);
     $wrapper->save();
   }
+}
+
+/**
+ * Functions for internal use.
+ */
+
+/**
+ * Get the users that should be notified when content is published.
+ *
+ * The users selected to be notified are:
+ * - Users that are subscribed via the field corresponding to the type and
+ *   bundle of the entity that was published.
+ * - Users that have flagged the published entity with the 'follow' flag
+ *   corresponding to the entity's type.
+ */
+function _ogmk_messages_get_subscribers($entity_type, $entity_bundle, $entity_id, array $options) {
+  $users_field = array();
+  $users_flag  = array();
+
+  // Get the active users that have a global setting to be notified as
+  // defined by the specified field.
+  if (!empty($options['field_name'])) {
+    $query = new EntityFieldQuery();
+    $query
+      ->entityCondition('entity_type', 'user')
+      ->propertyCondition('status', 1)
+      ->fieldCondition($options['field_name'], 'value', 1);
+    $result = $query->execute();
+
+    if (!empty($result['user'])) {
+      $users_field = $result['user'];
+    }
+  }
+
+  // Get the users that have flagged the entity with the specified flag.
+  if (!empty($options['flag_name'])) {
+    $users_flag = flag_get_entity_flags($entity_type, $entity_id, $options['flag_name']);
+
+    /**
+     * @Issue(
+     *   "Do not notify blocked users that follow entities"
+     *   type="bug"
+     *   priority="normal"
+     *   labels="security"
+     * )
+     */
+  }
+
+  // Get the union of all users following the entity.
+  // In both cases the array of users use the user ids as keys which is the only
+  // data we need, so it doesn't that the values are different.
+  $users_ids = $users_field + $users_flag;
+
+  if ($users_ids) {
+    return array_keys($users_ids);
+  }
+
+  return array();
+}
+
+/**
+ * Get the list of user ids with the notifiers that should be used.
+ *
+ * Given a list of user ids, return the list with the user ids as the array's
+ * keys and the notifiers that should be used as the array's values. This is the
+ * format required to be passed on to the message_subscribe_send_message
+ * subscribe options.
+ *
+ * @Issue(
+ *   "Implement site and user settings for specifying the user notifiers"
+ *   type="feature"
+ *   priority="normal"
+ * )
+ */
+function _ogmk_messages_get_subscribers_notifiers($uids) {
+  $uids_with_notifiers = array();
+
+  // We only support the email notifier at the moment.
+  foreach ($uids as $uid) {
+    $uids_with_notifiers[] = array(
+      $uid => array(
+        'notifiers' => array('email'),
+      ),
+    );
+  }
+
+  return $uids_with_notifiers;
 }
