@@ -11,8 +11,8 @@ function ogmk_messages_field_default_field_instances() {
   $field_instances = array();
 
   // Exported field_instance:
-  // 'message-ogmk_comment_published-field_message_comment_ref'.
-  $field_instances['message-ogmk_comment_published-field_message_comment_ref'] = array(
+  // 'message-ogmk_comment_published-ogmk_message_comment_ref'.
+  $field_instances['message-ogmk_comment_published-ogmk_message_comment_ref'] = array(
     'bundle' => 'ogmk_comment_published',
     'default_value' => NULL,
     'default_value_function' => '',
@@ -52,7 +52,7 @@ function ogmk_messages_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'message',
-    'field_name' => 'field_message_comment_ref',
+    'field_name' => 'ogmk_message_comment_ref',
     'label' => 'Comment',
     'required' => 1,
     'settings' => array(
@@ -76,8 +76,8 @@ function ogmk_messages_field_default_field_instances() {
   );
 
   // Exported field_instance:
-  // 'message-ogmk_comment_published-field_message_node_ref'.
-  $field_instances['message-ogmk_comment_published-field_message_node_ref'] = array(
+  // 'message-ogmk_comment_published-ogmk_message_node_ref'.
+  $field_instances['message-ogmk_comment_published-ogmk_message_node_ref'] = array(
     'bundle' => 'ogmk_comment_published',
     'default_value' => NULL,
     'default_value_function' => '',
@@ -116,7 +116,7 @@ function ogmk_messages_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'message',
-    'field_name' => 'field_message_node_ref',
+    'field_name' => 'ogmk_message_node_ref',
     'label' => 'Node',
     'required' => 1,
     'settings' => array(
@@ -140,8 +140,8 @@ function ogmk_messages_field_default_field_instances() {
   );
 
   // Exported field_instance:
-  // 'message-ogmk_post_published-field_message_node_ref'.
-  $field_instances['message-ogmk_post_published-field_message_node_ref'] = array(
+  // 'message-ogmk_post_published-ogmk_message_node_ref'.
+  $field_instances['message-ogmk_post_published-ogmk_message_node_ref'] = array(
     'bundle' => 'ogmk_post_published',
     'default_value' => NULL,
     'default_value_function' => '',
@@ -181,7 +181,7 @@ function ogmk_messages_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'message',
-    'field_name' => 'field_message_node_ref',
+    'field_name' => 'ogmk_message_node_ref',
     'label' => 'Node',
     'required' => 1,
     'settings' => array(
@@ -205,8 +205,8 @@ function ogmk_messages_field_default_field_instances() {
   );
 
   // Exported field_instance:
-  // 'message-ogmk_product_published-field_message_node_ref'.
-  $field_instances['message-ogmk_product_published-field_message_node_ref'] = array(
+  // 'message-ogmk_product_published-ogmk_message_node_ref'.
+  $field_instances['message-ogmk_product_published-ogmk_message_node_ref'] = array(
     'bundle' => 'ogmk_product_published',
     'default_value' => NULL,
     'default_value_function' => '',
@@ -246,7 +246,7 @@ function ogmk_messages_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'message',
-    'field_name' => 'field_message_node_ref',
+    'field_name' => 'ogmk_message_node_ref',
     'label' => 'Node',
     'required' => 1,
     'settings' => array(
@@ -270,8 +270,8 @@ function ogmk_messages_field_default_field_instances() {
   );
 
   // Exported field_instance:
-  // 'message-ogmk_review_published-field_message_node_ref'.
-  $field_instances['message-ogmk_review_published-field_message_node_ref'] = array(
+  // 'message-ogmk_review_published-ogmk_message_node_ref'.
+  $field_instances['message-ogmk_review_published-ogmk_message_node_ref'] = array(
     'bundle' => 'ogmk_review_published',
     'default_value' => NULL,
     'default_value_function' => '',
@@ -311,7 +311,7 @@ function ogmk_messages_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'message',
-    'field_name' => 'field_message_node_ref',
+    'field_name' => 'ogmk_message_node_ref',
     'label' => 'Node',
     'required' => 1,
     'settings' => array(
@@ -335,8 +335,8 @@ function ogmk_messages_field_default_field_instances() {
   );
 
   // Exported field_instance:
-  // 'message-ogmk_shop_published-field_message_node_ref'.
-  $field_instances['message-ogmk_shop_published-field_message_node_ref'] = array(
+  // 'message-ogmk_shop_published-ogmk_message_node_ref'.
+  $field_instances['message-ogmk_shop_published-ogmk_message_node_ref'] = array(
     'bundle' => 'ogmk_shop_published',
     'default_value' => NULL,
     'default_value_function' => '',
@@ -376,7 +376,7 @@ function ogmk_messages_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'message',
-    'field_name' => 'field_message_node_ref',
+    'field_name' => 'ogmk_message_node_ref',
     'label' => 'Node',
     'required' => 1,
     'settings' => array(
