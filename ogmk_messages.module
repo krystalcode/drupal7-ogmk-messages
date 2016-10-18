@@ -114,13 +114,8 @@ function ogmk_messages_comment_insert($comment) {
 
   // Comment publication message.
   if ((int) $comment->status === COMMENT_PUBLISHED) {
-    // Create a message assigned to the comment author and referencing the
-    // comment and the node.
-    $message = message_create('ogmk_comment_published', array('uid' => $comment->uid));
-    $wrapper = entity_metadata_wrapper('message', $message);
-    $wrapper->ogmk_message_comment_ref->set($comment);
-    $wrapper->ogmk_message_node_ref->set($node);
-    $wrapper->save();
+    $message = _ogmk_message_comment_published_message($comment, $node);
+    _ogmk_message_comment_published_notify($comment, $node, $message);
   }
 }
 
@@ -136,13 +131,8 @@ function ogmk_messages_comment_update($comment) {
 
   // Comment publication message.
   if ((int) $comment->original->status === COMMENT_NOT_PUBLISHED && (int) $comment->status === COMMENT_PUBLISHED) {
-    // Create a message assigned to the comment author and referencing the
-    // comment and the node.
-    $message = message_create('ogmk_comment_published', array('uid' => $comment->uid));
-    $wrapper = entity_metadata_wrapper('message', $message);
-    $wrapper->ogmk_message_comment_ref->set($comment);
-    $wrapper->ogmk_message_node_ref->set($node);
-    $wrapper->save();
+    $message = _ogmk_message_comment_published_message($comment, $node);
+    _ogmk_message_comment_published_notify($comment, $node, $message);
   }
 }
 
@@ -480,6 +470,69 @@ function _ogmk_messages_node_published_notify($node, $message) {
   message_subscribe_send_message(
     'node',
     $node,
+    $message,
+    $notify_options,
+    $subscribe_options,
+    $context
+  );
+}
+
+/**
+ * Create and store a message for the event of publishing a comment.
+ *
+ * @param object $comment The comment that has been published.
+ * @param object $node    The node to which the published comment belongs.
+ *
+ * @return object The message object.
+ */
+function _ogmk_message_comment_published_message($comment, $node) {
+  // Create a message assigned to the comment author and referencing the
+  // comment and the node.
+  $message = message_create('ogmk_comment_published', array('uid' => $comment->uid));
+  $wrapper = entity_metadata_wrapper('message', $message);
+  $wrapper->ogmk_message_comment_ref->set($comment);
+  $wrapper->ogmk_message_node_ref->set($node);
+  $wrapper->save();
+
+  return $message;
+}
+
+/**
+ * Notify subscribed users when a comment is published.
+ *
+ * We determine the context and delegate the actual notification to the
+ * 'message_subscribe' module.
+ *
+ * @param object $comment The comment that has been published.
+ * @param object $node    The node to which the published comment belongs.
+ * @param object $message The message that corresponds to the event.
+ */
+function _ogmk_message_comment_published_notify($comment, $node, $message) {
+  // Determine the context that will be used to get flag-based subscribers.
+
+  // Add the published comment and its author to the context.
+  $context = array(
+    'comment' => array($comment->cid => $comment->cid),
+    'user'    => array($comment->uid => $comment->uid),
+  );
+
+  // Add to the context the node that the comment belongs to.
+  $context['node'] = array($node->nid => $node->nid);
+
+  // Options to be passed to message_notify and message_subscribe modules.
+  $notify_options = array();
+  $subscribe_options = array(
+    // Don't save the message because we have already done so.
+    'save message' => FALSE,
+    // Limit the number of subscribers that will be notified per queue run, if
+    // we are using the cron.
+    'range' => 100,
+  );
+
+  // Send or queue the messages.
+  message_subscribe_send_message(
+    'comment',
+    $comment,
     $message,
     $notify_options,
     $subscribe_options,
