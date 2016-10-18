@@ -29,7 +29,14 @@ function ogmk_messages_entity_info_alter(&$entity_info) {
  * message_subscribe flag system is not used, it is advised that the relevant
  * hook is removed in an application-level module.
  */
-function ogmk_messages_message_subscribe_get_subscribers(Message $message, $subscribe_options = array(), $context = array()) {
+function ogmk_messages_message_subscribe_get_subscribers(
+  Message $message,
+  $subscribe_options = array(),
+  $context = array()
+) {
+  $entity_type   = '';
+  $entity_bundle = '';
+
   // The logic defined here for getting the subscribers is specific to the
   // ogmk_messages module. Get subscribers only for message types defined by the
   // ogmk_messages module.
@@ -394,8 +401,6 @@ function _ogmk_messages_node_published_message($node) {
  * @param object $message The message that corresponds to the event.
  */
 function _ogmk_messages_node_published_notify($node, $message) {
-  // Queue the message via 'message_subscribe' module's queue.
-
   // Determine the context that will be used to get flag-based subscribers.
 
   // Add the published node and its author to the context.
