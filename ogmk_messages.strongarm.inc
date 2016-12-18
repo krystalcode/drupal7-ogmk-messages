@@ -375,5 +375,12 @@ function ogmk_messages_strongarm() {
   );
   $export['field_bundle_settings_message__ogmk_shop_published'] = $strongarm;
 
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'message_subscribe_use_queue';
+  $strongarm->value = 1;
+  $export['message_subscribe_use_queue'] = $strongarm;
+
   return $export;
 }

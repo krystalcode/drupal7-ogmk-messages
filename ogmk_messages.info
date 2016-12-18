@@ -39,3 +39,4 @@ features[variable][] = field_bundle_settings_message__ogmk_post_published
 features[variable][] = field_bundle_settings_message__ogmk_product_published
 features[variable][] = field_bundle_settings_message__ogmk_review_published
 features[variable][] = field_bundle_settings_message__ogmk_shop_published
+features[variable][] = message_subscribe_use_queue
