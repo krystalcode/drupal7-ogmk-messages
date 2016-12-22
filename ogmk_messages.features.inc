@@ -33,13 +33,13 @@ function ogmk_messages_default_message_type() {
     "message_text" : { "en" : [
         {
           "value" : "A new comment has been published on the [site:name] Blog",
-          "format" : "ogmk_html",
-          "safe_value" : "A new comment has been published on the [site:name] Blog"
+          "format" : "plain_text",
+          "safe_value" : "\\u003Cp\\u003EA new comment has been published on the [site:name] Blog\\u003C\\/p\\u003E\\n"
         },
         {
-          "value" : "\\u003Cp\\u003EA new comment has been published on the [site:name] Blog, in the post with title \\u0022[message:ogmk-message-node-ref:title]\\u0022. To view it, \\u003Ca href=\\u0022[message:ogmk-message-comment-ref:url:absolute]\\u0022\\u003Eclick here\\u003C\\/a\\u003E.\\u003C\\/p\\u003E",
-          "format" : "ogmk_html",
-          "safe_value" : "\\u003Cp\\u003EA new comment has been published on the [site:name] Blog, in the post with title \\u0022[message:ogmk-message-node-ref:title]\\u0022. To view it, \\u003Ca href=\\u0022[message:ogmk-message-comment-ref:url:absolute]\\u0022\\u003Eclick here\\u003C\\/a\\u003E.\\u003C\\/p\\u003E"
+          "value" : "\\u003Cp\\u003EA new comment has been published on the [site:name] Blog, in the post with title \\u0022[message:ogmk-message-node-ref:title]\\u0022. To view it, click on the link below.\\u003C\\/p\\u003E\\r\\n\\r\\n\\u003Cp\\u003E[message:ogmk-message-comment-ref:url:absolute]\\u003C\\/p\\u003E\\r\\n\\r\\n\\u003Cp\\u003EYou are receiving this email because you have chosen to receive notifications for comments posted on our Blog, or because you are following this particular post. You can always configure your notification settings by logging into your account using the following link.\\u003C\\/p\\u003E\\r\\n\\r\\n\\u003Cp\\u003E[site:login-url]\\u003C\\/p\\u003E\\r\\n",
+          "format" : "ogmk_plain_html",
+          "safe_value" : "\\u003Cp\\u003EA new comment has been published on the [site:name] Blog, in the post with title \\u0022[message:ogmk-message-node-ref:title]\\u0022. To view it, click on the link below.\\u003C\\/p\\u003E\\n\\n\\u003Cp\\u003E[message:ogmk-message-comment-ref:url:absolute]\\u003C\\/p\\u003E\\n\\n\\u003Cp\\u003EYou are receiving this email because you have chosen to receive notifications for comments posted on our Blog, or because you are following this particular post. You can always configure your notification settings by logging into your account using the following link.\\u003C\\/p\\u003E\\n\\n\\u003Cp\\u003E[site:login-url]\\u003C\\/p\\u003E\\n"
         }
       ]
     }
@@ -59,13 +59,13 @@ function ogmk_messages_default_message_type() {
     "message_text" : { "en" : [
         {
           "value" : "A new post has been published on the [site:name] Blog",
-          "format" : "ogmk_html",
-          "safe_value" : "A new post has been published on the [site:name] Blog"
+          "format" : "plain_text",
+          "safe_value" : "\\u003Cp\\u003EA new post has been published on the [site:name] Blog\\u003C\\/p\\u003E\\n"
         },
         {
-          "value" : "\\u003Cp\\u003EA new post has been published on the [site:name] Blog with title \\u0022[message:ogmk-message-node-ref:title]\\u0022. To view it, click on the following link.\\u003C\\/p\\u003E\\r\\n\\u003Cp\\u003E\\u003Ca href=\\u0022[message:ogmk-message-node-ref:url:absolute]\\u0022\\u003E[message:ogmk-message-node-ref:title]\\u003C\\/a\\u003E\\u003C\\/p\\u003E",
-          "format" : "ogmk_html",
-          "safe_value" : "\\u003Cp\\u003EA new post has been published on the [site:name] Blog with title \\u0022[message:ogmk-message-node-ref:title]\\u0022. To view it, click on the following link.\\u003C\\/p\\u003E\\n\\u003Cp\\u003E\\u003Ca href=\\u0022[message:ogmk-message-node-ref:url:absolute]\\u0022\\u003E[message:ogmk-message-node-ref:title]\\u003C\\/a\\u003E\\u003C\\/p\\u003E"
+          "value" : "\\u003Cp\\u003EA new post has been published on the [site:name] Blog with title \\u0022[message:ogmk-message-node-ref:title]\\u0022. To view it, click on the following link.\\u003C\\/p\\u003E\\r\\n\\r\\n\\u003Cp\\u003E[message:ogmk-message-node-ref:url:absolute]\\u003C\\/p\\u003E\\r\\n\\r\\n\\u003Cp\\u003EYou are receiving this email because you have chosen to receive notifications for posts published on our Blog, or because you are following the author or the shop that\\u0026nbsp;this\\u0026nbsp;particular post belongs to. You can always configure your notification settings by logging into your account using the following link.\\u003C\\/p\\u003E\\r\\n\\r\\n\\u003Cp\\u003E[site:login-url]\\u003C\\/p\\u003E\\r\\n",
+          "format" : "ogmk_plain_html",
+          "safe_value" : "\\u003Cp\\u003EA new post has been published on the [site:name] Blog with title \\u0022[message:ogmk-message-node-ref:title]\\u0022. To view it, click on the following link.\\u003C\\/p\\u003E\\n\\n\\u003Cp\\u003E[message:ogmk-message-node-ref:url:absolute]\\u003C\\/p\\u003E\\n\\n\\u003Cp\\u003EYou are receiving this email because you have chosen to receive notifications for posts published on our Blog, or because you are following the author or the shop that\\u00a0this\\u00a0particular post belongs to. You can always configure your notification settings by logging into your account using the following link.\\u003C\\/p\\u003E\\n\\n\\u003Cp\\u003E[site:login-url]\\u003C\\/p\\u003E\\n"
         }
       ]
     }
@@ -85,13 +85,13 @@ function ogmk_messages_default_message_type() {
     "message_text" : { "en" : [
         {
           "value" : "A new product has been published on the [site:name]\\r\\n",
-          "format" : "ogmk_html",
-          "safe_value" : "A new product has been published on the [site:name]\\n"
+          "format" : "plain_text",
+          "safe_value" : "\\u003Cp\\u003EA new product has been published on the [site:name]\\u003C\\/p\\u003E\\n"
         },
         {
-          "value" : "\\u003Cp\\u003EA new product has been published on the [site:name] with title \\u0022[message:ogmk-message-node-ref:title]\\u0022. To view it, click on the following link.\\u003C\\/p\\u003E\\r\\n\\r\\n\\u003Cp\\u003E\\u003Ca href=\\u0022[message:ogmk-message-node-ref:url:absolute]\\u0022\\u003E[message:ogmk-message-node-ref:title]\\u003C\\/a\\u003E\\u003C\\/p\\u003E",
-          "format" : "ogmk_html",
-          "safe_value" : "\\u003Cp\\u003EA new product has been published on the [site:name] with title \\u0022[message:ogmk-message-node-ref:title]\\u0022. To view it, click on the following link.\\u003C\\/p\\u003E\\n\\n\\u003Cp\\u003E\\u003Ca href=\\u0022[message:ogmk-message-node-ref:url:absolute]\\u0022\\u003E[message:ogmk-message-node-ref:title]\\u003C\\/a\\u003E\\u003C\\/p\\u003E"
+          "value" : "\\u003Cp\\u003EA new product has been published on the [site:name] with title \\u0022[message:ogmk-message-node-ref:title]\\u0022. To view it, click on the following link.\\u003C\\/p\\u003E\\r\\n\\r\\n\\u003Cp\\u003E[message:ogmk-message-node-ref:url:absolute]\\u003C\\/p\\u003E\\r\\n\\r\\n\\u003Cp\\u003EYou are receiving this email because you have chosen to receive notifications for products published on our marketplace, or because you are following the shop that this particular product belongs to. You can always configure your notification settings by logging into your account using the following link.\\u003C\\/p\\u003E\\r\\n\\r\\n\\u003Cp\\u003E[site:login-url]\\u003C\\/p\\u003E\\r\\n",
+          "format" : "ogmk_plain_html",
+          "safe_value" : "\\u003Cp\\u003EA new product has been published on the [site:name] with title \\u0022[message:ogmk-message-node-ref:title]\\u0022. To view it, click on the following link.\\u003C\\/p\\u003E\\n\\n\\u003Cp\\u003E[message:ogmk-message-node-ref:url:absolute]\\u003C\\/p\\u003E\\n\\n\\u003Cp\\u003EYou are receiving this email because you have chosen to receive notifications for products published on our marketplace, or because you are following the shop that this particular product belongs to. You can always configure your notification settings by logging into your account using the following link.\\u003C\\/p\\u003E\\n\\n\\u003Cp\\u003E[site:login-url]\\u003C\\/p\\u003E\\n"
         }
       ]
     }
@@ -111,13 +111,13 @@ function ogmk_messages_default_message_type() {
     "message_text" : { "en" : [
         {
           "value" : "A new review has been published on the [site:name]\\r\\n",
-          "format" : "ogmk_html",
-          "safe_value" : "A new review has been published on the [site:name]\\n"
+          "format" : "plain_text",
+          "safe_value" : "\\u003Cp\\u003EA new review has been published on the [site:name]\\u003C\\/p\\u003E\\n"
         },
         {
-          "value" : "\\u003Cp\\u003EA new review has been published on the [site:name] with title \\u0022[message:ogmk-message-node-ref:title]\\u0022. To view it, click on the following link.\\u003C\\/p\\u003E\\r\\n\\u003Cp\\u003E\\u003Ca href=\\u0022[message:ogmk-message-node-ref:url:absolute]\\u0022\\u003E[message:ogmk-message-node-ref:title]\\u003C\\/a\\u003E\\u003C\\/p\\u003E",
-          "format" : "ogmk_html",
-          "safe_value" : "\\u003Cp\\u003EA new review has been published on the [site:name] with title \\u0022[message:ogmk-message-node-ref:title]\\u0022. To view it, click on the following link.\\u003C\\/p\\u003E\\n\\u003Cp\\u003E\\u003Ca href=\\u0022[message:ogmk-message-node-ref:url:absolute]\\u0022\\u003E[message:ogmk-message-node-ref:title]\\u003C\\/a\\u003E\\u003C\\/p\\u003E"
+          "value" : "\\u003Cp\\u003EA new review has been published on the [site:name] with title \\u0022[message:ogmk-message-node-ref:title]\\u0022. To view it, click on the following link.\\u003C\\/p\\u003E\\r\\n\\r\\n\\u003Cp\\u003E[message:ogmk-message-node-ref:url:absolute]\\u003C\\/p\\u003E\\r\\n\\r\\n\\u003Cp\\u003EYou are receiving this email because you have chosen to receive notifications for reviews posted on our marketplace, or because you are following the product or shop that this particular review belongs to. You can always configure your notification settings by logging into your account using the following link.\\u003C\\/p\\u003E\\r\\n\\r\\n\\u003Cp\\u003E[site:login-url]\\u003C\\/p\\u003E\\r\\n",
+          "format" : "ogmk_plain_html",
+          "safe_value" : "\\u003Cp\\u003EA new review has been published on the [site:name] with title \\u0022[message:ogmk-message-node-ref:title]\\u0022. To view it, click on the following link.\\u003C\\/p\\u003E\\n\\n\\u003Cp\\u003E[message:ogmk-message-node-ref:url:absolute]\\u003C\\/p\\u003E\\n\\n\\u003Cp\\u003EYou are receiving this email because you have chosen to receive notifications for reviews posted on our marketplace, or because you are following the product or shop that this particular review belongs to. You can always configure your notification settings by logging into your account using the following link.\\u003C\\/p\\u003E\\n\\n\\u003Cp\\u003E[site:login-url]\\u003C\\/p\\u003E\\n"
         }
       ]
     }
@@ -137,13 +137,13 @@ function ogmk_messages_default_message_type() {
     "message_text" : { "en" : [
         {
           "value" : "A new shop has been published on the [site:name]",
-          "format" : "ogmk_html",
-          "safe_value" : "A new shop has been published on the [site:name]"
+          "format" : "plain_text",
+          "safe_value" : "\\u003Cp\\u003EA new shop has been published on the [site:name]\\u003C\\/p\\u003E\\n"
         },
         {
-          "value" : "\\u003Cp\\u003EA new shop has been published on the [site:name] with title \\u0022[message:ogmk-message-node-ref:title]\\u0022. To view it, click on the following link.\\u003C\\/p\\u003E\\r\\n\\u003Cp\\u003E\\u003Ca href=\\u0022[message:ogmk-message-node-ref:url:absolute]\\u0022\\u003E[message:ogmk-message-node-ref:title]\\u003C\\/a\\u003E\\u003C\\/p\\u003E\\r\\n",
-          "format" : "ogmk_html",
-          "safe_value" : "\\u003Cp\\u003EA new shop has been published on the [site:name] with title \\u0022[message:ogmk-message-node-ref:title]\\u0022. To view it, click on the following link.\\u003C\\/p\\u003E\\n\\u003Cp\\u003E\\u003Ca href=\\u0022[message:ogmk-message-node-ref:url:absolute]\\u0022\\u003E[message:ogmk-message-node-ref:title]\\u003C\\/a\\u003E\\u003C\\/p\\u003E\\n"
+          "value" : "\\u003Cp\\u003EA new shop has been published on the [site:name] with title \\u0022[message:ogmk-message-node-ref:title]\\u0022. To view it, click on the following link.\\u003C\\/p\\u003E\\r\\n\\r\\n\\u003Cp\\u003E[message:ogmk-message-node-ref:url:absolute]\\u003C\\/p\\u003E\\r\\n\\r\\n\\u003Cp\\u003EYou are receiving this email because you have chosen to receive notifications when new shops are added to our marketplace. You can always configure your notification settings by logging into your account using the following link.\\u003C\\/p\\u003E\\r\\n\\r\\n\\u003Cp\\u003E[site:login-url]\\u003C\\/p\\u003E\\r\\n",
+          "format" : "ogmk_plain_html",
+          "safe_value" : "\\u003Cp\\u003EA new shop has been published on the [site:name] with title \\u0022[message:ogmk-message-node-ref:title]\\u0022. To view it, click on the following link.\\u003C\\/p\\u003E\\n\\n\\u003Cp\\u003E[message:ogmk-message-node-ref:url:absolute]\\u003C\\/p\\u003E\\n\\n\\u003Cp\\u003EYou are receiving this email because you have chosen to receive notifications when new shops are added to our marketplace. You can always configure your notification settings by logging into your account using the following link.\\u003C\\/p\\u003E\\n\\n\\u003Cp\\u003E[site:login-url]\\u003C\\/p\\u003E\\n"
         }
       ]
     }
