@@ -103,7 +103,17 @@ function ogmk_messages_node_update($node) {
   }
 
   // Node publication message.
-  if ((int) $node->original->status === NODE_NOT_PUBLISHED && (int) $node->status === NODE_PUBLISHED) {
+  if (
+    (int) $node->original->status === NODE_NOT_PUBLISHED &&
+    (int) $node->status === NODE_PUBLISHED &&
+    // If the node is already published but we are publishing a different
+    // revisioning, such as when performing operations via the 'revisioning'
+    // module, the original status of the revision is unpublished and of the
+    // updated is published. We don't have any other way of knowing whether we
+    // are publishing a node for the first time apart from checking the
+    // 'published_at' field.
+    (int) $node->published_at === 0
+  ) {
     $message = _ogmk_messages_node_published_message($node);
     _ogmk_messages_node_published_notify($node, $message);
   }
