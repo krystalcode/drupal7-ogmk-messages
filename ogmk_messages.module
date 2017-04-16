@@ -83,6 +83,11 @@ function ogmk_messages_message_subscribe_get_subscribers(
  * Implements hook_node_insert().
  */
 function ogmk_messages_node_insert($node) {
+  // Send messages to the chat, if enabled.
+  if (variable_get('ogmk_messages_chat')) {
+    _ogmk_messages_chat_messages__node_insert($node);
+  }
+
   if (!in_array($node->type, array('ogmk_post', 'ogmk_product', 'ogmk_review', 'ogmk_shop'))) {
     return;
   }
@@ -98,6 +103,11 @@ function ogmk_messages_node_insert($node) {
  * Implements hook_node_update().
  */
 function ogmk_messages_node_update($node) {
+  // Send messages to the chat, if enabled.
+  if (variable_get('ogmk_messages_chat')) {
+    _ogmk_messages_chat_messages__node_update($node);
+  }
+
   if (!in_array($node->type, array('ogmk_post', 'ogmk_product', 'ogmk_review', 'ogmk_shop'))) {
     return;
   }
@@ -150,6 +160,301 @@ function ogmk_messages_comment_update($comment) {
   if ((int) $comment->original->status === COMMENT_NOT_PUBLISHED && (int) $comment->status === COMMENT_PUBLISHED) {
     $message = _ogmk_message_comment_published_message($comment, $node);
     _ogmk_message_comment_published_notify($comment, $node, $message);
+  }
+}
+
+/**
+ * Implements hook_cron_queue_info().
+ */
+function ogmk_messages_cron_queue_info() {
+  $items = array();
+
+  // Queue for processing chat messages.
+  $items['ogmk_messages_chat_messages'] = array(
+    'worker callback' => '_ogmk_messages_queue_worker__ogmk_messages_chat_messages',
+  );
+
+  return $items;
+}
+
+
+/**
+ * Hooks, indirect implementations.
+ */
+
+/**
+ * Send messages to the chat for node insert operations.
+ *
+ * @param object
+ *   The inserted node, as provided in hook_node_insert.
+ */
+function _ogmk_messages_chat_messages__node_insert($node) {
+  // Do not send updates if the node is not one of the configured types.
+  $node_types = variable_get('ogmk_messages_chat_node_types');
+  if (!empty($node_types) && !in_array($node->type, $node_types)) {
+    return;
+  }
+
+  $message      = '';
+  $user_wrapper = entity_metadata_wrapper('user', $node->uid);
+  $first_name   = $user_wrapper->field_first_name->value();
+  $last_name    = $user_wrapper->field_last_name->value();
+  $name         = trim($first_name . ' ' . $last_name);
+  $url          = url('node/' . $node->nid, ['absolute' => TRUE]);
+  $time         = date('d F Y, H:i:s', $node->created);
+
+  // Node insert messages.
+  if ($node->status) {
+    $message = t(
+      '@name created and published a new content item at !url at !time',
+      [
+        '@name' => $name,
+        '!url'  => $url,
+        '!time' => $time,
+      ]
+    );
+  }
+  else {
+    $message = t(
+      '@name created a new content item at !url at !time',
+      [
+        '@name' => $name,
+        '!url'  => $url,
+        '!time' => $time,
+      ]
+    );
+  }
+
+  // Add to the corresponding queue.
+  $queue = DrupalQueue::get('ogmk_messages_chat_messages');
+  $queue->createItem(
+    [
+      'webhook' => 'admin_activity',
+      'message' => $message
+    ]
+  );
+}
+
+/**
+ * Send messages to the chat for node update operations.
+ *
+ * @param object
+ *   The updated node, as provided in hook_node_update.
+ *
+ * @Issue(
+ *   "Send chat message for updating a node without creating a new revision"
+ *   type="bug"
+ *   priority="low"
+ *   labels="activity, chat"
+ * )
+ * @Issue(
+ *   "Send chat message for deleting a revision or all revisions of a node"
+ *   type="bug"
+ *   priority="low"
+ *   labels="activity, chat"
+ * )
+ * @Issue(
+ *   "Send chat message for reverting a revision of a node"
+ *   type="bug"
+ *   priority="low"
+ *   labels="activity, chat"
+ * )
+ */
+function _ogmk_messages_chat_messages__node_update($node) {
+  // Do not send updates if the node is not one of the configured types.
+  $node_types = variable_get('ogmk_messages_chat_node_types');
+  if (!empty($node_types) && !in_array($node->type, $node_types)) {
+    return;
+  }
+
+  $message      = '';
+  $user_wrapper = entity_metadata_wrapper('user', $node->revision_uid);
+  $first_name   = $user_wrapper->field_first_name->value();
+  $last_name    = $user_wrapper->field_last_name->value();
+  $name         = trim($first_name . ' ' . $last_name);
+  $url          = url('node/' . $node->nid, ['absolute' => TRUE]);
+  $time         = date('d F Y, H:i:s', $node->changed);
+
+  // Node update messages.
+  if (!empty($node->old_vid) && $node->old_vid != $node->vid) {
+    if ($node->is_current) {
+      $message = t(
+        '@name created and published a new revision of the content item at !url at !time',
+        [
+          '@name' => $name,
+          '!url'  => $url,
+          '!time' => $time,
+        ]
+      );
+    }
+    else {
+      $message = t(
+        '@name created a new revision of the content item at !url at !time',
+        [
+          '@name' => $name,
+          '!url'  => $url,
+          '!time' => $time,
+        ]
+      );
+    }
+  }
+
+  // Node publication messages.
+  if (
+    (int) $node->original->status === NODE_NOT_PUBLISHED &&
+    (int) $node->status === NODE_PUBLISHED
+  ) {
+    // We don't have the new publication time available here because
+    // $node->published_at still holds the old value. So, let's use the current
+    // timestamp.
+    // We could make sure that the hook_node_update in the publication_date
+    // module is run after this one, and then load the value from the database,
+    // but it's really not worth it as if all goes well we would end up with the
+    // same timestamp.
+    $time = date('d F Y, H:i:s', time());
+
+    // If the node is already published but we are publishing a different
+    // revisioning, such as when performing operations via the 'revisioning'
+    // module, the original status of the revision is unpublished and of the
+    // updated is published. We don't have any other way of knowing whether we
+    // are publishing a node for the first time apart from checking the
+    // 'published_at' field.
+    if ((int) $node->published_at === 0) {
+      $message = t(
+        '@name published for the first time the content item at !url at !time',
+        [
+          '@name' => $name,
+          '!url'  => $url,
+          '!time' => $time,
+        ]
+      );
+    }
+    // Otherwise, we are publishing a different revision for an already
+    // published node.
+    else {
+      $message = t(
+        '@name published a revision of the content item at !url at !time',
+        [
+          '@name' => $name,
+          '!url'  => $url,
+          '!time' => $time,
+        ]
+      );
+    }
+  }
+
+  // Node unpublishing messages.
+  if (
+    (int) $node->original->status === NODE_PUBLISHED &&
+    (int) $node->status === NODE_NOT_PUBLISHED
+  ) {
+    // Setting the unpulishing time to the current time, for reasons similar to
+    // those in the publication case.
+    $time = date('d F Y, H:i:s', time());
+    $message = t(
+      '@name unpublished the content item at !url at !time',
+      [
+        '@name' => $name,
+        '!url'  => $url,
+        '!time' => $time,
+      ]
+    );
+  }
+
+  // Add to the corresponding queue.
+  $queue = DrupalQueue::get('ogmk_messages_chat_messages');
+  $queue->createItem(
+    [
+      'webhook' => 'admin_activity',
+      'message' => $message
+    ]
+  );
+}
+
+
+/**
+ * Callbacks.
+ */
+
+/**
+ * Queue worker callback for the 'ogmk_messages_chat_messages' queue.
+ */
+function _ogmk_messages_queue_worker__ogmk_messages_chat_messages($data) {
+  ogmk_messages_chat_message($data['webhook'], $data['message']);
+}
+
+
+/**
+ * Public API.
+ */
+
+/**
+ * Send messages to the chat.
+ */
+function ogmk_messages_chat_message($webhook, $text, $attachments = array()) {
+  $client = new GuzzleHttp\Client();
+
+  $chat_webhook = variable_get('ogmk_messages_chat_' . $webhook . '_webhook');
+  $chat_token   = variable_get('ogmk_messages_chat_' . $webhook . '_token');
+
+  // Log an error if the configuration for the webhook is not available, and
+  // exit since we cannot send the message in that case.
+  if (!$chat_webhook || !$chat_token) {
+    watchdog(
+      'ogmk_messages',
+      'The configuration for the chat webhook "!webhook" was not available while trying to send a message with text "@text" and attachments "@attachments".',
+      array(
+        '!webhook' => $webhook,
+        '@text'    => $text,
+        '@attachments' => json_encode($attachments),
+      ),
+      WATCHDOG_ERROR
+    );
+    return;
+  }
+
+  $request_options = [
+    'headers' => [
+      'X-Auth-Token' => $chat_token,
+    ],
+    'body' => json_encode([
+      'text' => $text,
+    ])
+  ];
+
+  if ($attachments) {
+    $request_options['body']['attachments'] = $attachments;
+  }
+
+  try {
+    $response = $client->post($chat_webhook, $request_options);
+  }
+  catch (Exception $e) {
+    watchdog(
+      'ogmk_messages',
+      'An exception was raised while sending a request for posting a message to Rocket Chat. The exception message was "@exception_message", while the request body was "@request_body"',
+      array(
+        '@exception_message' => $e->getMessage(),
+        '@request_body'      => json_encode($request_options['body']),
+      ),
+      WATCHDOG_ERROR
+    );
+    return;
+  }
+
+  // Log a message if we got a response other than 200, indicating a problem.
+  $responseCode = $response->getStatusCode();
+  if ($responseCode != 200) {
+    watchdog(
+      'ogmk_messages',
+      'A request for posting a message to Rocket Chat was unsuccessful with response code: "@response_code". Full response body was "@response_body", while the request body was "@request_body"',
+      array(
+        '@response_code' => $responseCode,
+        '@response_body' => json_encode($response->getBody()),
+        '@request_body'  => json_encode($request_options['body']),
+      ),
+      WATCHDOG_ERROR
+    );
   }
 }
 
