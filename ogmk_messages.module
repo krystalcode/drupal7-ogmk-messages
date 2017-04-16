@@ -318,7 +318,7 @@ function _ogmk_messages_chat_messages__node_update($node) {
   }
 
   // Node publication messages.
-  if (
+  elseif (
     (int) $node->original->status === NODE_NOT_PUBLISHED &&
     (int) $node->status === NODE_PUBLISHED
   ) {
@@ -362,7 +362,7 @@ function _ogmk_messages_chat_messages__node_update($node) {
   }
 
   // Node unpublishing messages.
-  if (
+  elseif (
     (int) $node->original->status === NODE_PUBLISHED &&
     (int) $node->status === NODE_NOT_PUBLISHED
   ) {
