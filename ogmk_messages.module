@@ -267,8 +267,12 @@ function _ogmk_messages_chat_messages__node_update($node) {
     return;
   }
 
-  $message      = '';
-  $user_wrapper = entity_metadata_wrapper('user', $node->revision_uid);
+  // The node contains only the uid of the author, even in the revision_uid
+  // property. We therefore use the current user, since it must be the user that
+  // updated the node. That is also necessary in the case of publishing or
+  // unpublishing a node, where this information is not stored anywhere at all.
+  global $user;
+  $user_wrapper = entity_metadata_wrapper('user', $user);
   $first_name   = $user_wrapper->field_first_name->value();
   $last_name    = $user_wrapper->field_last_name->value();
   $name         = trim($first_name . ' ' . $last_name);
