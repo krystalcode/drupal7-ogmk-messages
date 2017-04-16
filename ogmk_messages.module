@@ -276,14 +276,27 @@ function _ogmk_messages_chat_messages__node_update($node) {
   $first_name   = $user_wrapper->field_first_name->value();
   $last_name    = $user_wrapper->field_last_name->value();
   $name         = trim($first_name . ' ' . $last_name);
+
+  $message      = '';
   $url          = url('node/' . $node->nid, ['absolute' => TRUE]);
   $time         = date('d F Y, H:i:s', $node->changed);
 
   // Node update messages.
   if (!empty($node->old_vid) && $node->old_vid != $node->vid) {
-    if ($node->is_current) {
+    // If the revision_moderation option is enabled for this node type, it means
+    // that the new updates are saved as drafts and not published.
+    /**
+     * @Issue(
+     *   "Handle edge cases where revision_moderation is enabled but user with
+     *   permissions overrides it, when sending chat messages"
+     *   type="bug"
+     *   priority="normal"
+     *   labels="activity, chat"
+     * )
+     */
+    if ($node->revision_moderation) {
       $message = t(
-        '@name created and published a new revision of the content item at !url at !time',
+        '@name created a new revision of the content item at !url at !time',
         [
           '@name' => $name,
           '!url'  => $url,
@@ -291,9 +304,10 @@ function _ogmk_messages_chat_messages__node_update($node) {
         ]
       );
     }
+    // Otherwise, a new revision is created and published at the same time.
     else {
       $message = t(
-        '@name created a new revision of the content item at !url at !time',
+        '@name created and published a new revision of the content item at !url at !time',
         [
           '@name' => $name,
           '!url'  => $url,
