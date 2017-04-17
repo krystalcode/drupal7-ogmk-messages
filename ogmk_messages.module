@@ -261,13 +261,17 @@ function _ogmk_messages_chat_messages__node_insert($node) {
     return;
   }
 
-  $message      = '';
-  $user_wrapper = entity_metadata_wrapper('user', $node->uid);
-  $first_name   = $user_wrapper->field_first_name->value();
-  $last_name    = $user_wrapper->field_last_name->value();
-  $name         = trim($first_name . ' ' . $last_name);
-  $url          = url('node/' . $node->nid, ['absolute' => TRUE]);
-  $time         = date('d F Y, H:i:s', $node->created);
+  $name = 'An anonymous user';
+  if ($node->uid) {
+    $user_wrapper = entity_metadata_wrapper('user', $node->uid);
+    $first_name   = $user_wrapper->field_first_name->value();
+    $last_name    = $user_wrapper->field_last_name->value();
+    $name         = trim($first_name . ' ' . $last_name);
+  }
+
+  $message = '';
+  $url     = url('node/' . $node->nid, ['absolute' => TRUE]);
+  $time    = date('d F Y, H:i:s', $node->created);
 
   // Node insert messages.
   if ($node->status) {
@@ -337,11 +341,14 @@ function _ogmk_messages_chat_messages__node_update($node) {
   // property. We therefore use the current user, since it must be the user that
   // updated the node. That is also necessary in the case of publishing or
   // unpublishing a node, where this information is not stored anywhere at all.
+  $name = 'An anonymous user';
   global $user;
-  $user_wrapper = entity_metadata_wrapper('user', $user);
-  $first_name   = $user_wrapper->field_first_name->value();
-  $last_name    = $user_wrapper->field_last_name->value();
-  $name         = trim($first_name . ' ' . $last_name);
+  if ($user->uid) {
+    $user_wrapper = entity_metadata_wrapper('user', $user);
+    $first_name   = $user_wrapper->field_first_name->value();
+    $last_name    = $user_wrapper->field_last_name->value();
+    $name         = trim($first_name . ' ' . $last_name);
+  }
 
   $message      = '';
   $url          = url('node/' . $node->nid, ['absolute' => TRUE]);
