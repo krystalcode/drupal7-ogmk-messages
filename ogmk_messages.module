@@ -80,6 +80,27 @@ function ogmk_messages_message_subscribe_get_subscribers(
 }
 
 /**
+ * Implements hook_entity_insert().
+ */
+function ogmk_messages_entity_insert($entity, $type) {
+  // Send messages to the chat, if enabled.
+  if (!variable_get('ogmk_messages_chat')) {
+    return;
+  }
+
+  // Filter allowed entity types only.
+  $entity_types = variable_get('ogmk_messages_chat_entity_types', array());
+  if (!in_array($type, $entity_types)) {
+    return;
+  }
+
+  // Call the function that implements the logic for the specific entity type.
+  $func = '_ogmk_messages_chat_messages__' . $type . '_insert';
+  if (function_exists($func)) {
+    $func($entity, $type);
+  }
+
+/**
  * Implements hook_node_insert().
  */
 function ogmk_messages_node_insert($node) {
@@ -181,6 +202,51 @@ function ogmk_messages_cron_queue_info() {
 /**
  * Hooks, indirect implementations.
  */
+}
+
+/**
+ * Implmenets hook_entity_insert() via ogmk_messages_entity_insert().
+ *
+ * @Issue(
+ *   "Handle cases where entityform are not published when created e.g. drafts
+ *   when sending messages to chat"
+ *   type="bug"
+ *   priority="low"
+ *   labesl="activity, chat"
+ * )
+ */
+function _ogmk_messages_chat_messages__entityform_insert($entity, $type) {
+  $name = 'An anonymous user';
+  if ($entity->uid) {
+    $user_wrapper = entity_metadata_wrapper('user', $entity->uid);
+    $first_name   = $user_wrapper->field_first_name->value();
+    $last_name    = $user_wrapper->field_last_name->value();
+    $name         = trim($first_name . ' ' . $last_name);
+  }
+
+  $uri  = entity_uri($type, $entity);
+  $url  = url($uri['path'], ['absolute' => TRUE]);
+  $time = date('d F Y, H:i:s', $entity->created);
+
+  // Entity insert messages.
+  $message = t(
+    '@name submitted a new Form at !url at !time',
+    [
+      '@name' => $name,
+      '!url'  => $url,
+      '!time' => $time,
+    ]
+  );
+
+  // Add to the corresponding queue.
+  $queue = DrupalQueue::get('ogmk_messages_chat_messages');
+  $queue->createItem(
+    [
+      'webhook' => 'admin_activity',
+      'message' => $message
+    ]
+  );
+}
 
 /**
  * Send messages to the chat for node insert operations.
