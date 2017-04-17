@@ -157,6 +157,11 @@ function ogmk_messages_node_update($node) {
 function ogmk_messages_comment_insert($comment) {
   $node = node_load($comment->nid);
 
+  // Send messages to the chat, if enabled.
+  if (variable_get('ogmk_messages_chat')) {
+    _ogmk_messages_chat_messages__comment_insert($comment, $node);
+  }
+
   if (!in_array($node->type, array('ogmk_post', 'ogmk_product', 'ogmk_review', 'ogmk_shop'))) {
     return;
   }
@@ -173,6 +178,11 @@ function ogmk_messages_comment_insert($comment) {
  */
 function ogmk_messages_comment_update($comment) {
   $node = node_load($comment->nid);
+
+  // Send messages to the chat, if enabled.
+  if (variable_get('ogmk_messages_chat')) {
+    _ogmk_messages_chat_messages__comment_update($comment, $node);
+  }
 
   if (!in_array($node->type, array('ogmk_post', 'ogmk_product', 'ogmk_review', 'ogmk_shop'))) {
     return;
@@ -488,6 +498,92 @@ function _ogmk_messages_chat_messages__node_update($node) {
       ]
     );
   }
+
+  // Add to the corresponding queue.
+  $queue = DrupalQueue::get('ogmk_messages_chat_messages');
+  $queue->createItem(
+    [
+      'webhook' => 'admin_activity',
+      'message' => $message
+    ]
+  );
+}
+
+/**
+ * Implmenets hook_comment_insert() via ogmk_messages_comment_insert().
+ */
+function _ogmk_messages_chat_messages__comment_insert($comment, $node) {
+  $comment_types = variable_get('ogmk_messages_chat_comment_types', array());
+  if (!in_array($node->type, $comment_types)) {
+    return;
+  }
+
+  $name = 'An anonymous user';
+  if ($comment->uid) {
+    $user_wrapper = entity_metadata_wrapper('user', $comment->uid);
+    $first_name   = $user_wrapper->field_first_name->value();
+    $last_name    = $user_wrapper->field_last_name->value();
+    $name         = trim($first_name . ' ' . $last_name);
+  }
+
+  $uri  = comment_uri($comment);
+  $url  = url($uri['path'], array_merge($uri['options'], ['absolute' => TRUE]));
+  $time = date('d F Y, H:i:s', $comment->created);
+
+  // Comment insert messages.
+  $message = t(
+    '@name posted a new Comment at !url at !time',
+    [
+      '@name' => $name,
+      '!url'  => $url,
+      '!time' => $time,
+    ]
+  );
+
+  // Add to the corresponding queue.
+  $queue = DrupalQueue::get('ogmk_messages_chat_messages');
+  $queue->createItem(
+    [
+      'webhook' => 'admin_activity',
+      'message' => $message
+    ]
+  );
+}
+
+/**
+ * Implmenets hook_comment_update() via ogmk_messages_comment_update().
+ */
+function _ogmk_messages_chat_messages__comment_update($comment, $node) {
+  $comment_types = variable_get('ogmk_messages_chat_comment_types', array());
+  if (!in_array($node->type, $comment_types)) {
+    return;
+  }
+
+  $name = 'An anonymous user';
+  // The user that updated the comment is not stored, but it could be another
+  // user than the author of the comment e.g. an administrator. We therefore use
+  // the current user that should always be the user that performed the update.
+  global $user;
+  if ($user->uid) {
+    $user_wrapper = entity_metadata_wrapper('user', $user->uid);
+    $first_name   = $user_wrapper->field_first_name->value();
+    $last_name    = $user_wrapper->field_last_name->value();
+    $name         = trim($first_name . ' ' . $last_name);
+  }
+
+  $uri  = comment_uri($comment);
+  $url  = url($uri['path'], array_merge($uri['options'], ['absolute' => TRUE]));
+  $time = date('d F Y, H:i:s', $comment->changed);
+
+  // Comment insert messages.
+  $message = t(
+    '@name updated the Comment at !url at !time',
+    [
+      '@name' => $name,
+      '!url'  => $url,
+      '!time' => $time,
+    ]
+  );
 
   // Add to the corresponding queue.
   $queue = DrupalQueue::get('ogmk_messages_chat_messages');
