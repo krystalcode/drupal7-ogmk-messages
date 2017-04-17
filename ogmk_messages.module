@@ -99,6 +99,7 @@ function ogmk_messages_entity_insert($entity, $type) {
   if (function_exists($func)) {
     $func($entity, $type);
   }
+}
 
 /**
  * Implements hook_node_insert().
@@ -202,7 +203,6 @@ function ogmk_messages_cron_queue_info() {
 /**
  * Hooks, indirect implementations.
  */
-}
 
 /**
  * Implmenets hook_entity_insert() via ogmk_messages_entity_insert().
