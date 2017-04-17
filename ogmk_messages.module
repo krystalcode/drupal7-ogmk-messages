@@ -186,6 +186,43 @@ function ogmk_messages_comment_update($comment) {
 }
 
 /**
+ * Implements hook_commerce_checkout_complete().
+ *
+ * Send chat messages when an order is placed (via checkout completion).
+ */
+function ogmk_messages_commerce_checkout_complete($order) {
+  $name = 'An anonymous user';
+  if ($order->uid) {
+    $user_wrapper = entity_metadata_wrapper('user', $order->uid);
+    $first_name   = $user_wrapper->field_first_name->value();
+    $last_name    = $user_wrapper->field_last_name->value();
+    $name         = trim($first_name . ' ' . $last_name);
+  }
+
+  $url  = url('admin/commerce/orders/' . $order->order_id, ['absolute' => TRUE]);
+  $time = date('d F Y, H:i:s', $order->changed);
+
+  // Checkout complete messages.
+  $message = t(
+    '@name placed a new Order at !url at !time',
+    [
+      '@name' => $name,
+      '!url'  => $url,
+      '!time' => $time,
+    ]
+  );
+
+  // Add to the corresponding queue.
+  $queue = DrupalQueue::get('ogmk_messages_chat_messages');
+  $queue->createItem(
+    [
+      'webhook' => 'admin_activity',
+      'message' => $message
+    ]
+  );
+}
+
+/**
  * Implements hook_cron_queue_info().
  */
 function ogmk_messages_cron_queue_info() {
