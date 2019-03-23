@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * ogmk_messages.features.user_permission.inc

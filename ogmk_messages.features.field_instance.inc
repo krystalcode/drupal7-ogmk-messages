@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * ogmk_messages.features.field_instance.inc
@@ -23,6 +24,7 @@ function ogmk_messages_field_default_field_instances() {
         'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
+          'bypass_access' => FALSE,
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
@@ -45,6 +47,7 @@ function ogmk_messages_field_default_field_instances() {
         'module' => 'entityreference',
         'settings' => array(
           'links' => 0,
+          'use_content_language' => TRUE,
           'view_mode' => 'ogmk_bootstrap_media',
         ),
         'type' => 'entityreference_entity_view',
@@ -88,6 +91,7 @@ function ogmk_messages_field_default_field_instances() {
         'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
+          'bypass_access' => FALSE,
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
@@ -109,6 +113,7 @@ function ogmk_messages_field_default_field_instances() {
         'label' => 'hidden',
         'module' => 'entityreference',
         'settings' => array(
+          'bypass_access' => FALSE,
           'link' => 1,
         ),
         'type' => 'entityreference_label',
@@ -152,6 +157,7 @@ function ogmk_messages_field_default_field_instances() {
         'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
+          'bypass_access' => FALSE,
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
@@ -174,6 +180,7 @@ function ogmk_messages_field_default_field_instances() {
         'module' => 'entityreference',
         'settings' => array(
           'links' => 0,
+          'use_content_language' => TRUE,
           'view_mode' => 'ogmk_bootstrap_media',
         ),
         'type' => 'entityreference_entity_view',
@@ -217,6 +224,7 @@ function ogmk_messages_field_default_field_instances() {
         'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
+          'bypass_access' => FALSE,
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
@@ -239,6 +247,7 @@ function ogmk_messages_field_default_field_instances() {
         'module' => 'entityreference',
         'settings' => array(
           'links' => 0,
+          'use_content_language' => TRUE,
           'view_mode' => 'ogmk_bootstrap_media',
         ),
         'type' => 'entityreference_entity_view',
@@ -282,6 +291,7 @@ function ogmk_messages_field_default_field_instances() {
         'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
+          'bypass_access' => FALSE,
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
@@ -304,6 +314,7 @@ function ogmk_messages_field_default_field_instances() {
         'module' => 'entityreference',
         'settings' => array(
           'links' => 0,
+          'use_content_language' => TRUE,
           'view_mode' => 'ogmk_bootstrap_media',
         ),
         'type' => 'entityreference_entity_view',
@@ -347,6 +358,7 @@ function ogmk_messages_field_default_field_instances() {
         'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
+          'bypass_access' => FALSE,
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
@@ -369,6 +381,7 @@ function ogmk_messages_field_default_field_instances() {
         'module' => 'entityreference',
         'settings' => array(
           'links' => 0,
+          'use_content_language' => TRUE,
           'view_mode' => 'ogmk_bootstrap_media',
         ),
         'type' => 'entityreference_entity_view',

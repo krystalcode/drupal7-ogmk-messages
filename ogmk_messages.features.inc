@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * ogmk_messages.features.inc
