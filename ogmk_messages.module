@@ -627,10 +627,6 @@ function ogmk_messages_chat_message($group, $text, $attachments = array()) {
     return;
   }
 
-  if (!$settings['enabled']) {
-    return;
-  }
-
   $function = 'ogmk_messages_chat_messages__' . $settings['provider_type'];
   if (function_exists($function)) {
     $function($group, $text, $attachments, $settings);
