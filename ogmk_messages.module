@@ -83,14 +83,13 @@ function ogmk_messages_message_subscribe_get_subscribers(
  * Implements hook_entity_insert().
  */
 function ogmk_messages_entity_insert($entity, $type) {
-  // Send messages to the chat, if enabled.
-  if (!variable_get('ogmk_messages_chat')) {
+  $chat_settings = variable_get('ogmk_messages_chat');
+  if (!$chat_settings) {
     return;
   }
 
   // Filter allowed entity types only.
-  $entity_types = variable_get('ogmk_messages_chat_entity_types', array());
-  if (!in_array($type, $entity_types)) {
+  if (!empty($chat_settings['entity_types']) && !in_array($type, $chat_settings['entity_types'])) {
     return;
   }
 
@@ -302,9 +301,13 @@ function _ogmk_messages_chat_messages__entityform_insert($entity, $type) {
  *   The inserted node, as provided in hook_node_insert.
  */
 function _ogmk_messages_chat_messages__node_insert($node) {
+  $chat_settings = variable_get('ogmk_messages_chat');
+  if (!$chat_settings) {
+    return;
+  }
+
   // Do not send updates if the node is not one of the configured types.
-  $node_types = variable_get('ogmk_messages_chat_node_types');
-  if (!empty($node_types) && !in_array($node->type, $node_types)) {
+  if (!empty($chat_settings['node_types']) && !in_array($node->type, $chat_settings['node_types'])) {
     return;
   }
 
@@ -378,9 +381,13 @@ function _ogmk_messages_chat_messages__node_insert($node) {
  * )
  */
 function _ogmk_messages_chat_messages__node_update($node) {
+  $chat_settings = variable_get('ogmk_messages_chat');
+  if (!$chat_settings) {
+    return;
+  }
+
   // Do not send updates if the node is not one of the configured types.
-  $node_types = variable_get('ogmk_messages_chat_node_types');
-  if (!empty($node_types) && !in_array($node->type, $node_types)) {
+  if (!empty($chat_settings['node_types']) && !in_array($node->type, $chat_settings['node_types'])) {
     return;
   }
 
@@ -513,8 +520,13 @@ function _ogmk_messages_chat_messages__node_update($node) {
  * Implmenets hook_comment_insert() via ogmk_messages_comment_insert().
  */
 function _ogmk_messages_chat_messages__comment_insert($comment, $node) {
-  $comment_types = variable_get('ogmk_messages_chat_comment_types', array());
-  if (!in_array($node->type, $comment_types)) {
+  $chat_settings = variable_get('ogmk_messages_chat');
+  if (!$chat_settings) {
+    return;
+  }
+
+  // Filter allowed comment types only.
+  if (!empty($chat_settings['comment_types']) && !in_array($node->type, $chat_settings['comment_types'])) {
     return;
   }
 
@@ -554,8 +566,13 @@ function _ogmk_messages_chat_messages__comment_insert($comment, $node) {
  * Implmenets hook_comment_update() via ogmk_messages_comment_update().
  */
 function _ogmk_messages_chat_messages__comment_update($comment, $node) {
-  $comment_types = variable_get('ogmk_messages_chat_comment_types', array());
-  if (!in_array($node->type, $comment_types)) {
+  $chat_settings = variable_get('ogmk_messages_chat');
+  if (!$chat_settings) {
+    return;
+  }
+
+  // Filter allowed comment types only.
+  if (!empty($chat_settings['comment_types']) && !in_array($node->type, $chat_settings['comment_types'])) {
     return;
   }
 
