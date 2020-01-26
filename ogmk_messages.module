@@ -226,7 +226,7 @@ function ogmk_messages_commerce_checkout_complete($order) {
   $queue = DrupalQueue::get('ogmk_messages_chat_messages');
   $queue->createItem(
     [
-      'webhook' => 'admin_activity',
+      'group' => 'admin_activity_commerce',
       'message' => $message
     ]
   );
@@ -289,7 +289,7 @@ function _ogmk_messages_chat_messages__entityform_insert($entity, $type) {
   $queue = DrupalQueue::get('ogmk_messages_chat_messages');
   $queue->createItem(
     [
-      'webhook' => 'admin_activity',
+      'group' => 'admin_activity',
       'message' => $message
     ]
   );
@@ -346,7 +346,7 @@ function _ogmk_messages_chat_messages__node_insert($node) {
   $queue = DrupalQueue::get('ogmk_messages_chat_messages');
   $queue->createItem(
     [
-      'webhook' => 'admin_activity',
+      'group' => 'admin_activity_content',
       'message' => $message
     ]
   );
@@ -503,7 +503,7 @@ function _ogmk_messages_chat_messages__node_update($node) {
   $queue = DrupalQueue::get('ogmk_messages_chat_messages');
   $queue->createItem(
     [
-      'webhook' => 'admin_activity',
+      'group' => 'admin_activity_content',
       'message' => $message
     ]
   );
@@ -544,7 +544,7 @@ function _ogmk_messages_chat_messages__comment_insert($comment, $node) {
   $queue = DrupalQueue::get('ogmk_messages_chat_messages');
   $queue->createItem(
     [
-      'webhook' => 'admin_activity',
+      'group' => 'admin_activity_content',
       'message' => $message
     ]
   );
@@ -589,7 +589,7 @@ function _ogmk_messages_chat_messages__comment_update($comment, $node) {
   $queue = DrupalQueue::get('ogmk_messages_chat_messages');
   $queue->createItem(
     [
-      'webhook' => 'admin_activity',
+      'group' => 'admin_activity_content',
       'message' => $message
     ]
   );
@@ -604,7 +604,7 @@ function _ogmk_messages_chat_messages__comment_update($comment, $node) {
  * Queue worker callback for the 'ogmk_messages_chat_messages' queue.
  */
 function _ogmk_messages_queue_worker__ogmk_messages_chat_messages($data) {
-  ogmk_messages_chat_message($data['webhook'], $data['message']);
+  ogmk_messages_chat_message($data['group'], $data['message']);
 }
 
 
@@ -615,20 +615,37 @@ function _ogmk_messages_queue_worker__ogmk_messages_chat_messages($data) {
 /**
  * Send messages to the chat.
  */
-function ogmk_messages_chat_message($webhook, $text, $attachments = array()) {
-  $client = new GuzzleHttp\Client();
-
-  $chat_webhook = variable_get('ogmk_messages_chat_' . $webhook . '_webhook');
-  $chat_token   = variable_get('ogmk_messages_chat_' . $webhook . '_token');
-
-  // Log an error if the configuration for the webhook is not available, and
-  // exit since we cannot send the message in that case.
-  if (!$chat_webhook || !$chat_token) {
+function ogmk_messages_chat_message($group, $text, $attachments = array()) {
+  $settings = variable_get('ogmk_messages_chat');
+  if (!$settings) {
     watchdog(
       'ogmk_messages',
-      'The configuration for the chat webhook "!webhook" was not available while trying to send a message with text "@text" and attachments "@attachments".',
+      'Trying to send a chat message without having a configured service provider.',
+      array(),
+      WATCHDOG_ERROR
+    );
+    return;
+  }
+
+  if (!$settings['enabled']) {
+    return;
+  }
+
+  $function = 'ogmk_messages_chat_messages__' . $settings['provider_type'];
+  if (function_exists($function)) {
+    $function($group, $text, $attachments, $settings);
+  }
+}
+
+function ogmk_messages_chat_messages__zulip($group, $text, $attachments = array(), $settings) {
+  // Log an error if the configuration for the provider is not available, and
+  // exit since we cannot send the message in that case.
+  if (empty($settings['provider_settings']['endpoint'])) {
+    watchdog(
+      'ogmk_messages',
+      'The endpoint configuration for the Zulip chat provider was not available or was incomplete while trying to send a message for the group "!gropu" with text "@text" and attachments "@attachments".',
       array(
-        '!webhook' => $webhook,
+        '!group' => $group,
         '@text'    => $text,
         '@attachments' => json_encode($attachments),
       ),
@@ -636,6 +653,109 @@ function ogmk_messages_chat_message($webhook, $text, $attachments = array()) {
     );
     return;
   }
+  $chat_endpoint = $settings['provider_settings']['endpoint'];
+
+  if (isset($settings['message_groups'][$group])) {
+    $chat_username = $settings['message_groups'][$group]['username'];
+    $chat_password = $settings['message_groups'][$group]['password'];
+    $chat_type = $settings['message_groups'][$group]['type'];
+    $chat_to = $settings['message_groups'][$group]['to'];
+    $chat_topic = $settings['message_groups'][$group]['topic'];
+  }
+
+  // Log an error if the configuration for the group is not available, and
+  // exit since we cannot send the message in that case.
+  if (!isset($chat_username) || !isset($chat_password) || !isset($chat_type) || !isset($chat_to) || !isset($chat_topic)) {
+    watchdog(
+      'ogmk_messages',
+      'The configuration for the chat message group "!group" was not available or was incomplete while trying to send a message with text "@text" and attachments "@attachments".',
+      array(
+        '!group' => $group,
+        '@text'    => $text,
+        '@attachments' => json_encode($attachments),
+      ),
+      WATCHDOG_ERROR
+    );
+    return;
+  }
+
+  $client = new GuzzleHttp\Client();
+
+  $request_options = [
+    'headers' => [
+      'Authorization' => 'Basic ' . base64_encode($chat_username . ':' . $chat_password),
+    ],
+    'body' => [
+      'type' => $chat_type,
+      'to' => $chat_to,
+      'topic' => $chat_topic,
+      'content' => $text,
+    ]
+  ];
+
+  /**
+   * @Issue(
+   *   "Add attachments when posting a message to Zulip"
+   *   type="bug"
+   *   priority="normal"
+   * )
+   */
+
+  try {
+    $response = $client->post($chat_endpoint, $request_options);
+  }
+  catch (Exception $e) {
+    watchdog(
+      'ogmk_messages',
+      'An exception was raised while sending a request for posting a message to the Zulip chat provider. The exception message was "@exception_message", while the request body was "@request_body"',
+      array(
+        '@exception_message' => $e->getMessage(),
+        '@request_body'      => json_encode($request_options['body']),
+      ),
+      WATCHDOG_ERROR
+    );
+    return;
+  }
+
+  // Log a message if we got a response other than 200, indicating a problem.
+  $responseCode = $response->getStatusCode();
+  if ($responseCode != 200) {
+    watchdog(
+      'ogmk_messages',
+      'A request for posting a message to the Zulip chat provider was unsuccessful with response code: "@response_code". Full response body was "@response_body", while the request body was "@request_body"',
+      array(
+        '@response_code' => $responseCode,
+        '@response_body' => json_encode($response->getBody()),
+        '@request_body'  => json_encode($request_options['body']),
+      ),
+      WATCHDOG_ERROR
+    );
+  }
+}
+
+function ogmk_messages_chat_messages__rocket_chat($group, $text, $attachments = array(), $settings) {
+  if (isset($settings['message_groups'][$group])) {
+    $chat_webhook = $settings['message_groups'][$group]['webhook'];
+    $chat_token = $settings['message_groups'][$group]['token'];
+  }
+
+  // Log an error if the configuration for the group is not available, and
+  // exit since we cannot send the message in that case.
+  if (!isset($chat_webhook) || !isset($chat_token)) {
+    watchdog(
+      'ogmk_messages',
+      'The configuration for the chat message group "!group" was not available while trying to send a message with text "@text" and attachments "@attachments".',
+      array(
+        '!group' => $group,
+        '@text'    => $text,
+        '@attachments' => json_encode($attachments),
+      ),
+      WATCHDOG_ERROR
+    );
+    return;
+  }
+
+  $client = new GuzzleHttp\Client();
 
   $request_options = [
     'headers' => [
@@ -656,7 +776,7 @@ function ogmk_messages_chat_message($webhook, $text, $attachments = array()) {
   catch (Exception $e) {
     watchdog(
       'ogmk_messages',
-      'An exception was raised while sending a request for posting a message to Rocket Chat. The exception message was "@exception_message", while the request body was "@request_body"',
+      'An exception was raised while sending a request for posting a message to the Rocket Chat chat provider. The exception message was "@exception_message", while the request body was "@request_body"',
       array(
         '@exception_message' => $e->getMessage(),
         '@request_body'      => json_encode($request_options['body']),
@@ -671,7 +791,7 @@ function ogmk_messages_chat_message($webhook, $text, $attachments = array()) {
   if ($responseCode != 200) {
     watchdog(
       'ogmk_messages',
-      'A request for posting a message to Rocket Chat was unsuccessful with response code: "@response_code". Full response body was "@response_body", while the request body was "@request_body"',
+      'A request for posting a message to the Rocket Chat chat provider was unsuccessful with response code: "@response_code". Full response body was "@response_body", while the request body was "@request_body"',
       array(
         '@response_code' => $responseCode,
         '@response_body' => json_encode($response->getBody()),
