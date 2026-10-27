@@ -650,7 +650,7 @@ function ogmk_messages_chat_message($group, $text, $attachments = array()) {
   }
 }
 
-function ogmk_messages_chat_messages__zulip($group, $text, $attachments = array(), $settings) {
+function ogmk_messages_chat_messages__zulip($group, $text, $attachments, $settings) {
   // Log an error if the configuration for the provider is not available, and
   // exit since we cannot send the message in that case.
   if (empty($settings['provider_settings']['endpoint'])) {
@@ -746,7 +746,7 @@ function ogmk_messages_chat_messages__zulip($group, $text, $attachments = array(
   }
 }
 
-function ogmk_messages_chat_messages__rocket_chat($group, $text, $attachments = array(), $settings) {
+function ogmk_messages_chat_messages__rocket_chat($group, $text, $attachments, $settings) {
   if (isset($settings['message_groups'][$group])) {
     $chat_webhook = $settings['message_groups'][$group]['webhook'];
     $chat_token = $settings['message_groups'][$group]['token'];
